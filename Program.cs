@@ -1,26 +1,19 @@
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
-using SampleWebApp.Model;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Azure Key Vault
-var keyVaultName = builder.Configuration["KeyVaultName"];
-if (!string.IsNullOrEmpty(keyVaultName))
-{
-    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
-}
+// Set up Azure Key Vault
+var keyVaultName = "kvyoutubedemowithdotnet";
+var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
 
-// Register DAL as a service
-builder.Services.AddSingleton<DAL>();
-
-// Add services to the container
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<DAL>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
