@@ -6,10 +6,18 @@ namespace SampleWebApp.Model
 {
     public class DAL
     {
-        public List<User> GetUsers(IConfiguration _configuration)
+        private readonly IConfiguration _configuration;
+
+        public DAL(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public List<User> GetUsers()
         {
             List<User> users = new List<User>();
-            using (SqlConnection con = new SqlConnection(_configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"]))
+            var connectionString = _configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"];
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM TblUsers", con);
                 DataTable dt = new DataTable();
@@ -18,10 +26,12 @@ namespace SampleWebApp.Model
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        User user = new User();
-                        user.Id = Convert.ToString(dt.Rows[i]["Id"]);
-                        user.FirstName = Convert.ToString(dt.Rows[i]["FirstName"]);
-                        user.LastName = Convert.ToString(dt.Rows[i]["LastName"]);
+                        User user = new User
+                        {
+                            Id = Convert.ToString(dt.Rows[i]["Id"]),
+                            FirstName = Convert.ToString(dt.Rows[i]["FirstName"]),
+                            LastName = Convert.ToString(dt.Rows[i]["LastName"])
+                        };
                         users.Add(user);
                     }
                 }
@@ -29,12 +39,13 @@ namespace SampleWebApp.Model
             return users;
         }
 
-        public int AddUser(User user, IConfiguration _configuration)
+        public int AddUser(User user)
         {
             int i = 0;
-            using (SqlConnection con = new SqlConnection(_configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"]))
+            var connectionString = _configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"];
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("INSERT INTO TblUsers VALUES(@FirstName, @LastName)", con);
+                SqlCommand cmd = new SqlCommand("INSERT INTO TblUsers (FirstName, LastName) VALUES(@FirstName, @LastName)", con);
                 cmd.Parameters.AddWithValue("@FirstName", user.FirstName);
                 cmd.Parameters.AddWithValue("@LastName", user.LastName);
                 con.Open();
@@ -44,10 +55,11 @@ namespace SampleWebApp.Model
             return i;
         }
 
-        public User GetUser(string id, IConfiguration _configuration)
+        public User GetUser(string id)
         {
             User user = new User();
-            using (SqlConnection con = new SqlConnection(_configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"]))
+            var connectionString = _configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"];
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM TblUsers WHERE ID = @Id", con);
                 da.SelectCommand.Parameters.AddWithValue("@Id", id);
@@ -63,10 +75,11 @@ namespace SampleWebApp.Model
             return user;
         }
 
-        public int UpdateUser(User user, IConfiguration _configuration)
+        public int UpdateUser(User user)
         {
             int i = 0;
-            using (SqlConnection con = new SqlConnection(_configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"]))
+            var connectionString = _configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"];
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 SqlCommand cmd = new SqlCommand("UPDATE TblUsers SET FirstName = @FirstName, LastName = @LastName WHERE ID = @Id", con);
                 cmd.Parameters.AddWithValue("@FirstName", user.FirstName);
@@ -79,10 +92,11 @@ namespace SampleWebApp.Model
             return i;
         }
 
-        public int DeleteUser(string id, IConfiguration _configuration)
+        public int DeleteUser(string id)
         {
             int i = 0;
-            using (SqlConnection con = new SqlConnection(_configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"]))
+            var connectionString = _configuration["KeyVaultDemo-ConnectionStrings--DefaultConnection"];
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM TblUsers WHERE ID = @Id", con);
                 cmd.Parameters.AddWithValue("@Id", id);
